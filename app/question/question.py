@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from question.schema import *
 from app.models import *
 from app.database import get_db
-from fastapi import APIRouter, Depends, HTTPException
+
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
