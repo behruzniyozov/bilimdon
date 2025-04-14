@@ -7,7 +7,18 @@ from GAME.schemas import *
 from app.main import get_current_user
 
 
-router = APIRouter()
+router = APIRouter(prefix="/game", tags=["Game"])
+
+
+@router.get("/read-games", response_model=List[ReadGame])
+async def read_games(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    
+    games = db.query(Game).all()
+    if not games:
+        raise HTTPException(status_code=404, detail="No games found")
+    return games
 
 @router.get("/read-games", response_model=ReadGame)
 async def get_games(

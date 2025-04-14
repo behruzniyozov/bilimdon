@@ -7,7 +7,18 @@ from datetime import datetime, timezone
 from app.database import get_db, get_current_user
 from topic.schemas import *
 
-router = APIRouter()
+router = APIRouter(prefix="/topic", tags=["Topic"])
+
+
+@router.get("/read-topics", response_model=List[ReadTopic]) 
+async def read_all_topics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    
+    topics = db.query(Topic).all()
+    if not topics:
+        raise HTTPException(status_code=404, detail="No topics found")
+    return topics
 
 @router.get("/read-topics", response_model=ReadTopic)
 async def get_topics(
@@ -73,4 +84,4 @@ async def delete_topic(
 
     db.delete(db_topic)
     db.commit()
-    return "Topic deleted successfully"
+    return "Topic deleted successfully"       

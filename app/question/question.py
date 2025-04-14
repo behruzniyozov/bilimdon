@@ -8,21 +8,29 @@ from datetime import datetime, timezone
 
 from app.database import get_db, get_current_user  
 
-router = APIRouter()
+router = APIRouter(prefix="/question", tags=["Question"])
 
-router.get("/read-questions", response_model=ReadQuestion)
-async def get_questions(
-    db: get_db,
-    user: ReadQuestion
+@router.get("/read-questions", response_model=List[ReadQuestion])
+async def read_all_questions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    questions = db.query(Question).filter(Question.id==user.id).all()
+    questions = db.query(Question).all()
     if not questions:
         raise HTTPException(status_code=404, detail="No questions found")
     return questions
 
 
-
-router = APIRouter()
+@router.get("/read-questions/{question_id}", response_model=ReadQuestion)
+async def read_question(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    question = db.query(Question).filter(Question.id == question_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return question
 
 @router.post("/create-questions", response_model=CreateQuestion)
 async def create_question(
